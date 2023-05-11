@@ -5,6 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import model.Reserva;
 
@@ -44,5 +47,111 @@ public class ReservaDAO {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public List<Reserva> listarReserva() {
+		List<Reserva> listaReserva = new ArrayList<Reserva>();
+
+		try {
+			final PreparedStatement statement = connection
+					.prepareStatement("SELECT id, fecha_entrada, fecha_salida, valor, forma_de_pago FROM reservas");
+			try (statement) {
+				statement.execute();
+
+				final ResultSet resultSet = statement.getResultSet();
+
+				try (resultSet) {
+					while (resultSet.next()) {
+
+					
+					listaReserva.add(new Reserva(resultSet.getInt("id"),
+							resultSet.getDate("fecha_entrada").toLocalDate(),
+							resultSet.getDate("fecha_salida").toLocalDate(),
+							resultSet.getString("alor"),
+							resultSet.getString("forma_de_pago")));
+				}
+			}
+	
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+		return listaReserva;
+
+	}
+
+	public List<Reserva> buscarReservaId(String id) {
+		
+		List<Reserva> listaReserva = new ArrayList<Reserva>();
+
+		try {
+			final PreparedStatement statement = connection.prepareStatement(
+					"SELECT id, fecha_entrada, fecha_salida, valor, forma_de_pago FROM reservas WHERE id =?");
+
+			try (statement) {
+				
+				statement.setString(1, id);
+				statement.execute();
+
+				final ResultSet resultSet = statement.getResultSet();
+
+				try (resultSet) {
+					while (resultSet.next()) {
+
+						listaReserva.add(new Reserva(resultSet.getInt("ID"),
+								resultSet.getDate("fecha_entrada").toLocalDate().plusDays(1),
+								resultSet.getDate("fecha_salida").toLocalDate().plusDays(1),
+								resultSet.getString("valor"), 
+								resultSet.getString("forma_de_pago")));
+					}
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+		return listaReserva;
+
+	}
+	public void actualizarReserva(LocalDate fechaEntrada, LocalDate fechaSalida, String valor, String formaPago, Integer id) {
+		try {
+            final PreparedStatement statement = connection.prepareStatement(
+                    "UPDATE reservas SET "
+                    + " fecha_entrada = ?, "
+                    + " fecha_salida = ?,"
+                    + " valor = ?,"
+                    + "forma_de_pago = ?"
+                    + " WHERE id = ?");
+
+            try (statement) {
+                statement.setObject(1, java.sql.Date.valueOf(fechaEntrada));
+                statement.setObject(2, java.sql.Date.valueOf(fechaSalida));
+                statement.setString(3, valor);
+                statement.setString(4, formaPago);
+                statement.setInt(5, id);
+                statement.execute();
+
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+      }
+    }	
+	public void eliminarReserva(int id) {
+		 try {
+	        	
+	            final PreparedStatement statement = connection.prepareStatement("DELETE FROM huespedes WHERE id = ?");
+
+	            try (statement) {
+	                statement.setInt(1, id);
+	                statement.execute();              
+
+	            }
+	        } catch (SQLException e) {
+	            throw new RuntimeException(e);
+	        }
+	    
+	}
+	
+	
 
 }
