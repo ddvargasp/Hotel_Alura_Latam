@@ -66,7 +66,7 @@ public class ReservaDAO {
 					listaReserva.add(new Reserva(resultSet.getInt("id"),
 							resultSet.getDate("fecha_entrada").toLocalDate(),
 							resultSet.getDate("fecha_salida").toLocalDate(),
-							resultSet.getString("alor"),
+							resultSet.getString("valor"),
 							resultSet.getString("forma_de_pago")));
 				}
 			}
